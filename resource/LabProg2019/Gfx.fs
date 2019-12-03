@@ -1,4 +1,4 @@
-﻿(*
+(*
 * LabProg2019 - Progetto di Programmazione a.a. 2019-20
 * Gfx.fs: graphics stuff
 * (C) 2019 Alvise Spano' @ Universita' Ca' Foscari di Venezia
@@ -220,16 +220,30 @@ type wronly_raster (w, h) =
         let inline p xi yi =
             let px = src.[x0 + xi, y0 + yi]
             if not px.is_empty then dst.[x1 + xi, y1 + yi] <- px
-        if obj.ReferenceEquals (src, dst) && (y1 < y0 || x1 < x0) then
-            // reverse blit
-            for yi = h - 1 downto 0 do
-                for xi = w - 1 downto 0 do
-                    p xi yi
-        else
-            // straight blit
+
+        let inline my_p xi yi xOffset yOffset =
+            let px = src.[x0 + xi + xOffset, y0 + yi + yOffset]
+            if not px.is_empty then dst.[x1 + xi, y1 + yi] <- px 
+
+        if (y1 <= y0 || x1 <= x0) then
             for yi = 0 to h - 1 do
                 for xi = 0 to w - 1 do
-                    p xi yi
+                    my_p xi yi (src.width - w) (src.height - h)
+        else
+            for yi = 0 to h - 1 do
+                for xi = 0 to w - 1 do
+                    my_p xi yi 0 0
+
+        //if obj.ReferenceEquals (src, dst) && (y1 < y0 || x1 < x0) then
+        //    // reverse blit
+        //    for yi = h - 1 downto 0 do
+        //        for xi = w - 1 downto 0 do
+        //            p xi yi
+        //else
+        //    // straight blit
+        //    for yi = 0 to h - 1 do
+        //        for xi = 0 to w - 1 do
+        //            p xi yi
 
     member src.blit (dst : wronly_raster, x1, y1) = src.blit (0, 0, src.width, src.height, dst, x1, y1)
 
@@ -263,7 +277,7 @@ type wronly_raster (w, h) =
 type system_console_raster (w, h) =
     inherit wronly_raster (w, h)
     let w = min w Console.LargestWindowWidth
-    let h = min h Console.LargestWindowHeight
+    let h = min h (Console.LargestWindowHeight-1) //Then 1 is added
     do
         Console.Title <- sprintf "%s (%d x %d)" Config.game_console_title w h
         Console.CursorVisible <- false
