@@ -1,4 +1,4 @@
-(*
+﻿(*
 * LabProg2019 - Progetto di Programmazione a.a. 2019-20
 * Gfx.fs: graphics stuff
 * (C) 2019 Alvise Spano' @ Universita' Ca' Foscari di Venezia
@@ -211,39 +211,45 @@ type wronly_raster (w, h) =
             this.flood_fill (x - 1, y, fill_px)
             this.flood_fill (x, y - 1, fill_px)       
 
+    /// Reads a pixel value at the given coordinates.
     member this.get (x, y) =
         if this.is_inside (x, y) then this.[x, y]
         else pixel.empty
 
+    /// Blit a rectangular region of pixels from this object as source to the destination raster.
+    /// Expression src.unsafe_blit (x0, y0, w, h, dst, x1, y1) blits from source raster src to destination raster dst,
+    /// copying the rectangular region with top-left corner at (x0, y0) and bottom-right corner at (x0 + w - 1, y0 + h -1) to destination coordinates (x1, y1).
     abstract unsafe_blit : int * int * int * int * wronly_raster * int * int -> unit
     default src.unsafe_blit (x0, y0, w, h, dst, x1, y1) =
+        // TODO: debuggare questo nuovo algoritmo di blit proposto da Davide Pizzolato
+        #if OLD_BLIT
         let inline p xi yi =
             let px = src.[x0 + xi, y0 + yi]
             if not px.is_empty then dst.[x1 + xi, y1 + yi] <- px
+        if obj.ReferenceEquals (src, dst) && (y1 < y0 || x1 < x0) then
+            // reverse blit
+            for yi = h - 1 downto 0 do
+                for xi = w - 1 downto 0 do
+                    p xi yi
+        else
+            // straight blit
+            for yi = 0 to h - 1 do
+                for xi = 0 to w - 1 do                    
+                    p xi yi
 
-        let inline my_p xi yi xOffset yOffset =
+        #else
+        let inline p xi yi xOffset yOffset =
             let px = src.[x0 + xi + xOffset, y0 + yi + yOffset]
             if not px.is_empty then dst.[x1 + xi, y1 + yi] <- px 
-
-        if (y1 <= y0 || x1 <= x0) then
+        if y1 <= y0 || x1 <= x0 then
             for yi = 0 to h - 1 do
                 for xi = 0 to w - 1 do
-                    my_p xi yi (src.width - w) (src.height - h)
+                    p xi yi (src.width - w) (src.height - h)
         else
             for yi = 0 to h - 1 do
-                for xi = 0 to w - 1 do
-                    my_p xi yi 0 0
-
-        //if obj.ReferenceEquals (src, dst) && (y1 < y0 || x1 < x0) then
-        //    // reverse blit
-        //    for yi = h - 1 downto 0 do
-        //        for xi = w - 1 downto 0 do
-        //            p xi yi
-        //else
-        //    // straight blit
-        //    for yi = 0 to h - 1 do
-        //        for xi = 0 to w - 1 do
-        //            p xi yi
+                for xi = 0 to w - 1 do                    
+                    p xi yi 0 0
+        #endif
 
     member src.blit (dst : wronly_raster, x1, y1) = src.blit (0, 0, src.width, src.height, dst, x1, y1)
 
@@ -277,7 +283,7 @@ type wronly_raster (w, h) =
 type system_console_raster (w, h) =
     inherit wronly_raster (w, h)
     let w = min w Console.LargestWindowWidth
-    let h = min h (Console.LargestWindowHeight-1) //Then 1 is added
+    let h = min h (Console.LargestWindowHeight - 1)
     do
         Console.Title <- sprintf "%s (%d x %d)" Config.game_console_title w h
         Console.CursorVisible <- false

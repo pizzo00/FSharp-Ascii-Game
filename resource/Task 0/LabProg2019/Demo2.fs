@@ -16,8 +16,8 @@ type state = {
     player : sprite
 }
 
-let W = 60
-let H = 30
+let W = 70
+let H = 40
 
 let main () =       
     let engine = new engine (W, H)
@@ -37,8 +37,8 @@ let main () =
 
 
     // create simple backgroud and player
-    ignore <| engine.create_and_register_sprite (image.rectangle (W, H, pixel.filled Color.Yellow, pixel.filled Color.Blue), 0, 0, 0)
-    let player = engine.create_and_register_sprite (image.circle (2, pixel.filled Color.White, pixel.filled Color.Gray), W / 2, H / 2, 1)
+    ignore <| engine.create_and_register_sprite (image.rectangle (W, H, pixel.filled Color.Red, pixel.filled Color.Blue), 0, 0, 0)
+    let player = engine.create_and_register_sprite (image.rectangle (5, 5, pixel.filled Color.White, pixel.filled Color.Red), W / 2, H / 2, 1)
 
     // initialize state
     let st0 = { 
