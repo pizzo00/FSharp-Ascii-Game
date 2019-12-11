@@ -1,6 +1,13 @@
 ﻿module LabProg2019.MazeGenerator
 
 open Maze
+open System
+
+let rand = Random(DateTime.Now.Millisecond)
+type AlgorithmCell = Unvisited | Visited
+
+let private is_out_of_bound (m: maze) (x: int) (y: int): bool =
+    (x >= m.W || y >= m.H || x < 0 || y < 0)
 
 let backtracking (m: maze): maze = 
     let fill_with_wall (m: maze): maze =
@@ -16,6 +23,11 @@ let backtracking (m: maze): maze =
                     aux x (y+1)
 
         aux 0 0
+
+    let mutable cells = Array2D.create m.W m.H Unvisited 
+    let aux (x: int) (y: int) = ()
+     
+               
 
     fill_with_wall m
 

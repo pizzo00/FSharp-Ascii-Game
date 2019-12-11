@@ -32,10 +32,10 @@ let main () =
 
 
     // create simple backgroud and player
-    let maze = MazeGenerator.backtracking  (maze(30, 30))
+    let maze = MazeGenerator.backtracking  (maze(25, 25))
     
     
-    ignore <| engine.create_and_register_sprite ((image.maze maze 5 5 (pixel.filled Color.White) (pixel.filled Color.Red)), 0, 0, 0)
+    ignore <| engine.create_and_register_sprite ((image.maze maze (pixel.filled Color.White) (pixel.filled Color.Red)), 5, 5, 0)
     let player = engine.create_and_register_sprite (image.rectangle (1, 1, pixel.filled Color.White, pixel.filled Color.Red), W / 2, H / 2, 1)
 
     // initialize state

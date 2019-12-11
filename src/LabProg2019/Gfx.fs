@@ -122,12 +122,16 @@ type wronly_raster (w, h) =
         this.draw_line (x1, y1, x1, y0, px)
         this.draw_line (x1, y1, x0, y1, px)
         
-    member this.draw_maze (m: maze) (x0: int) (y0: int) (wall_px: pixel) (walk_px: pixel): unit =
+    member this.draw_maze (m: maze) (wall_px: pixel) (walk_px: pixel): unit =
         for x in 0 .. m.W-1  do
-            for y in 0 .. m.W-1  do
-                if (m.Cells.[x, y] = Cell.Walkable)  then this.plot((x + x0), (y + y0), walk_px)
-                else if (m.Cells.[x, y] = Cell.Wall) then this.plot((x + x0), (y + y0), wall_px)
-                else failwith "Cell Style not supported"
+            for y in 0 .. m.H-1  do
+                if m.Cells.[x, y] = Cell.Walkable then 
+                    this.plot((x ), (y ), walk_px)
+                else 
+                    //if m.Cells.[x, y] = Cell.Wall then 
+                    this.plot((x ), (y ), wall_px)
+                    //else
+                    //    failwith "Cell Style not supported"
 
                     
                
@@ -355,9 +359,9 @@ type image (w, h, pixels : pixel[]) =
         Option.iter (fun px -> i.flood_fill (i.width / 2, i.height / 2, px)) filled_px
         i
     
-    static member maze (m: maze) (x0: int) (y0: int) (wall_px: pixel) (walk_px: pixel): image =
+    static member maze (m: maze) (wall_px: pixel) (walk_px: pixel): image =
         let i = new image (m.W, m.H)
-        i.draw_maze m x0 y0 wall_px walk_px
+        i.draw_maze m wall_px walk_px
         i
 
 

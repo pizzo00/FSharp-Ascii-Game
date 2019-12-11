@@ -15,16 +15,20 @@ type Cell = Wall | Walkable
 type maze =
     val W: int
     val H: int
+    val WalkableW : int
+    val WalkableH : int
     
     val Cells: Cell[,] 
 
     new(w, h) =
-        if (w >= 3 && w % 2 = 1) then failwith "Maze: Width must be odd and bigger than 2"
-        if (h >= 3 && h % 2 = 1) then failwith "Maze: Heighh must be odd and bigger than 2"
+        if (w < 3 || w % 2 = 0) then failwith "Maze: Width must be odd and bigger than 2"
+        if (h < 3 || h % 2 = 0) then failwith "Maze: Heighh must be odd and bigger than 2"
 
         {  
             W = w 
             H = h
+            WalkableW = w
+            WalkableH = h
             Cells = Array2D.create w h Walkable 
         }
 
