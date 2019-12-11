@@ -126,10 +126,10 @@ type wronly_raster (w, h) =
         for x in 0 .. m.W-1  do
             for y in 0 .. m.H-1  do
                 if m.Cells.[x, y] = Cell.Walkable then 
-                    this.plot((x ), (y ), walk_px)
+                    this.plot(x, y, walk_px)
                 else 
                     //if m.Cells.[x, y] = Cell.Wall then 
-                    this.plot((x ), (y ), wall_px)
+                    this.plot(x, y, wall_px)
                     //else
                     //    failwith "Cell Style not supported"
 

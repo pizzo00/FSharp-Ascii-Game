@@ -18,7 +18,7 @@ type maze =
     val WalkableW : int
     val WalkableH : int
     
-    val Cells: Cell[,] 
+    val mutable Cells: Cell[,] 
 
     new(w, h) =
         if (w < 3 || w % 2 = 0) then failwith "Maze: Width must be odd and bigger than 2"
