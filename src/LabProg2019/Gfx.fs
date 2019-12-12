@@ -119,6 +119,9 @@ type wronly_raster (w, h) =
               
     member this.draw_single_char (px: pixel): unit =
         this.plot(0, 0, px)
+
+    /// Draw a circle with (x0, y0) as center and r as ray, using px as pixel.
+    member this.draw_circle (x0, y0, r, px) =
         let plot x y = this.plot (x, y, px)
         let x = 0
         let y = r
@@ -136,9 +139,9 @@ type wronly_raster (w, h) =
                 if m > 0 then (y - 1), (m - 8 * y)
                 else y, m
             if x <= y then
-              let x = x + 1 in
-              let m = m + 8 * x + 4 in
-              loop x y m      
+                let x = x + 1 in
+                let m = m + 8 * x + 4 in
+                loop x y m      
         loop x y m
 
     override this.ToString () = sprintf "wronly_raster (%d, %d)" this.width this.height
@@ -293,6 +296,11 @@ type image (w, h, pixels : pixel[]) =
         Option.iter (fun px -> i.flood_fill (i.width / 2, i.height / 2, px)) filled_px
         i
 
+    static member single_char (px: pixel): image =
+        let i = new image (1, 1)
+        i.draw_single_char px
+        i
+
 
 /// Subclass of image representing sprites. Sprites are images that can have a location and can be moved.
 /// Constructor parameters are the image, coordinates x, y and an integer z that is the order by which sprites are rendered, in ascending order (lower z means more behind, higher z means more in front).
@@ -300,10 +308,10 @@ type image (w, h, pixels : pixel[]) =
 type sprite (img : image, x_ : int, y_ : int, z_ : int) =    
     inherit image (img.width, img.height, img.pixels)
 
-    /// Get or set the x coordinate of this sprite as a float.
-    member val x : float = float x_ with get, set
-    /// Get or set the y coordinate of this sprite as a float.
-    member val y : float = float y_ with get, set
+    /// Get or set the x coordinate of this sprite
+    member val x : int = x_ with get, set
+    /// Get or set the y coordinate of this sprite
+    member val y : int = y_ with get, set
     /// Get or set the z value of this sprite.
     member val z = z_ with get, set
 
@@ -311,9 +319,6 @@ type sprite (img : image, x_ : int, y_ : int, z_ : int) =
     member this.move_by (dx, dy) =
         this.x <- this.x + dx
         this.y <- this.y + dy
-
-    /// Recalculate the x and y coordinates of this sprite given a pair of integers (dx, dy) representing the horizontal and vertical offsets.
-    member this.move_by (dx, dy) = this.move_by (float dx, float dy)
     
     /// Draw this sprite onto the given wronly_raster. Clamping may take place.
     member spr.draw wr = spr.blit (wr, int spr.x, int spr.y)
