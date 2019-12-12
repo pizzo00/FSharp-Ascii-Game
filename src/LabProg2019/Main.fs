@@ -1,4 +1,4 @@
-﻿(*
+(*
 * LabProg2019 - Progetto di Programmazione a.a. 2019-20
 * Main.fs: main code
 * (C) 2019 Alvise Spano' @ Universita' Ca' Foscari di Venezia
@@ -22,7 +22,6 @@ let main_game () =
     p.StartInfo.UseShellExecute <- true
     p.StartInfo.CreateNoWindow <- false
     p.StartInfo.Arguments <- "1"
-    // This is returning a Mono path, e.g "/Library/Frameworks/Mono.framework/Versions/6.4.0/bin/mono-sgen64"
     p.StartInfo.FileName <- Process.GetCurrentProcess().MainModule.FileName
     ignore <| p.Start ()
 
