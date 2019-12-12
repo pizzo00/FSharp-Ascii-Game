@@ -15,12 +15,10 @@ type state = {
 let W = 70
 let H = 40
 
-let maze_w = 61
-let maze_h = 31
+let maze_w = 15//61
+let maze_h = 15//31
 let maze_origin_x = 5
 let maze_origin_y = 5
-let maze_start_x = 1
-let maze_start_y = 1
 
 let main () =       
     let engine = new engine (W, H)
@@ -29,31 +27,40 @@ let main () =
         // move player
         let dx, dy =
             match key.KeyChar with 
-            | 'w' -> 0., -1.
-            | 's' -> 0., 1.
-            | 'a' -> -1., 0.
-            | 'd' -> 1., 0.
-            | _   -> 0., 0.
+            | 'w' -> 0, -1
+            | 's' -> 0, 1
+            | 'a' -> -1, 0
+            | 'd' -> 1, 0
+            | _   -> 0, 0
         
-        let nextX = st.player.x + dx
-        let nextY = st.player.y + dy
+        let next_x = st.player.x + dx
+        let next_y = st.player.y + dy
+        let maze_relative_next_x = next_x - maze_origin_x
+        let maze_relative_next_y = next_y - maze_origin_y
 
-        if(st.current_maze.Cells.[(int)nextX - maze_origin_x, (int)nextY - maze_origin_y] = Walkable) then
+        if(st.current_maze.Cells.[maze_relative_next_x, maze_relative_next_y] = Walkable) then
             st.player.move_by (dx, dy)
-        st, key.KeyChar = 'q'
+            st.player.pixels.[0].bg <- (st.current_maze.get_pixel_in_pos maze_relative_next_x maze_relative_next_y).fg //Update bg color of player
+
+        if(st.current_maze.is_end_pos maze_relative_next_x maze_relative_next_y) then
+            st.player.pixels.[0].fg <- Color.White
+
+        let close = key.KeyChar = 'q' 
+        (st, close)
 
 
     // create simple backgroud and player
     let m = maze(maze_w, maze_h)
-    MazeGenerator.backtracking m maze_start_x maze_start_y
-    let current_maze = engine.create_and_register_sprite ((image.maze m (pixel.filled Color.White) (pixel.filled Color.Red)), maze_origin_x, maze_origin_y, 0)
+    MazeGenerator.backtracking m
+    ignore <| engine.create_and_register_sprite (m.to_image(), maze_origin_x, maze_origin_y, 0)
     
-    let player = engine.create_and_register_sprite (image.rectangle (1, 1, pixel.filled Color.Blue, pixel.filled Color.Blue), maze_origin_x + maze_start_x, maze_origin_y + maze_start_y, 1)
+    let player = engine.create_and_register_sprite (image.single_char (pixel.create('\254', Color.Blue, m.Pixel_start.fg)), maze_origin_x + m.Start_x, maze_origin_y + m.Start_y, 1)
 
-    // initialize state
-    let st0 = { 
+    // Initialize state
+    let state = { 
         player = player
         current_maze = m
         }
-    // start engine
-    engine.loop_on_key my_update st0
+
+    // Start engine
+    engine.loop_on_key my_update state

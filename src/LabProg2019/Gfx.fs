@@ -13,7 +13,6 @@ open Prelude
 open External
 open System.IO
 open System.Text
-open Maze
 
 
 
@@ -122,17 +121,8 @@ type wronly_raster (w, h) =
         this.draw_line (x1, y1, x1, y0, px)
         this.draw_line (x1, y1, x0, y1, px)
         
-    member this.draw_maze (m: maze) (wall_px: pixel) (walk_px: pixel): unit =
-        for x in 0 .. m.W-1  do
-            for y in 0 .. m.H-1  do
-                if m.Cells.[x, y] = Cell.Walkable then 
-                    this.plot(x, y, walk_px)
-                else 
-                    //if m.Cells.[x, y] = Cell.Wall then 
-                    this.plot(x, y, wall_px)
-                    //else
-                    //    failwith "Cell Style not supported"
-
+    member this.draw_single_char (px: pixel): unit =
+        this.plot(0, 0, px)
                     
                
     // mid-point circle drawing algorithm
@@ -358,10 +348,10 @@ type image (w, h, pixels : pixel[]) =
         i.draw_rectangle (0, 0, w, h, px)
         Option.iter (fun px -> i.flood_fill (i.width / 2, i.height / 2, px)) filled_px
         i
-    
-    static member maze (m: maze) (wall_px: pixel) (walk_px: pixel): image =
-        let i = new image (m.W, m.H)
-        i.draw_maze m wall_px walk_px
+
+    static member single_char (px: pixel): image =
+        let i = new image (1, 1)
+        i.draw_single_char px
         i
 
 
@@ -371,9 +361,9 @@ type image (w, h, pixels : pixel[]) =
 type sprite (img : image, x_ : int, y_ : int, z_ : int) =    
     inherit image (img.width, img.height, img.pixels)
     
-    member val x : float = float x_ with get, set
-    member val y : float = float y_ with get, set
-    member val z = z_ with get, set
+    member val x: int = int x_ with get, set
+    member val y: int = int y_ with get, set
+    member val z: int = int z_ with get, set
 
     member this.move_by (dx, dy) =
         this.x <- this.x + dx

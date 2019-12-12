@@ -60,7 +60,7 @@ type engine (w : int, h : int, ?fps_cap : int, ?flip_queue) =
         let len = lock sprites <| fun () ->
             sprites <- List.sortBy (fun spr -> spr.z) (spr :: sprites)  // sprites are always sorted in ascending order by z
             List.length sprites
-        Log.msg "registered sprite #%d: x=%g y=%g z=%d width=%d height=%d" len spr.x spr.y spr.z spr.width spr.height
+        Log.msg "registered sprite #%d: x=%d y=%d z=%d width=%d height=%d" len spr.x spr.y spr.z spr.width spr.height
 
     member this.create_and_register_sprite (img, x, y, z) = let r = new sprite (img, x, y, z) in this.register_sprite r; r
     member this.create_and_register_sprite (w, h, x, y, z) = this.create_and_register_sprite (new image (w, h), x, y, z)
