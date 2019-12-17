@@ -15,8 +15,8 @@ type state = {
 let W = 70
 let H = 40
 
-let maze_w = 15//61
-let maze_h = 15//31
+let maze_w = 61//61
+let maze_h = 31//31
 let maze_origin_x = 5
 let maze_origin_y = 5
 
@@ -51,7 +51,8 @@ let main () =
 
     // create simple backgroud and player
     let m = maze(maze_w, maze_h)
-    MazeGenerator.backtracking m
+    //Backtracking.backtracking m
+    Eller.eller m
     ignore <| engine.create_and_register_sprite (m.to_image(), maze_origin_x, maze_origin_y, 0)
     
     let player = engine.create_and_register_sprite (image.single_char (pixel.create('\254', Color.Blue, m.Pixel_start.fg)), maze_origin_x + m.Start_x, maze_origin_y + m.Start_y, 1)

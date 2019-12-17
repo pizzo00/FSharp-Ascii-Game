@@ -71,7 +71,9 @@
     <Compile Include="Maze.fs" />
     <Compile Include="Engine.fs" />
     <Compile Include="Test.fs" />
+    <Compile Include="Maze Generator\Utility.fs" />
     <Compile Include="Maze Generator\Backtracking.fs" />
+    <Compile Include="Maze Generator\Eller.fs" />
     <Compile Include="MyMain.fs" />
     <Compile Include="Main.fs" />
     <None Include="App.config" />
