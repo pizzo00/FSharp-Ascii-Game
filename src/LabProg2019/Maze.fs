@@ -12,6 +12,7 @@ open Gfx
 
 type Cell = Wall | Walkable
 
+
 type maze =
     val Width: int
     val Height: int
@@ -27,7 +28,7 @@ type maze =
     
     val mutable Cells: Cell[,]
 
-    new(w, h) =
+    new((w: int), (h: int), (generator: (maze -> unit))) as this =
         if (w < 3 || w % 2 = 0) then failwith "Maze: Width must be odd and bigger than 2"
         if (h < 3 || h % 2 = 0) then failwith "Maze: Heighh must be odd and bigger than 2"
 
@@ -44,11 +45,15 @@ type maze =
             Pixel_end = pixel.filled Color.Yellow
             Cells = Array2D.create w h Walkable 
         }
+        then
+            generator(this)
 
-    member this.is_start_pos (x: int) (y: int): bool =
+    member this.is_start_pos (pos: int*int): bool =
+        let (x, y) = pos
         (x = this.Start_x && y = this.Start_y)
 
-    member this.is_end_pos (x: int) (y: int): bool =
+    member this.is_end_pos (pos: int*int): bool =
+        let (x, y) = pos
         (x = this.End_x && y = this.End_y)
 
     member this.to_image (): image =
@@ -62,12 +67,11 @@ type maze =
                 i.plot(x, y, this.get_pixel_in_pos x y)
 
     member this.get_pixel_in_pos (x: int) (y: int): pixel =
-        if this.is_start_pos x y then
+        if this.is_start_pos (x, y) then
             this.Pixel_start
-        else if this.is_end_pos x y then
+        else if this.is_end_pos (x, y) then
             this.Pixel_end
         else
             match this.Cells.[x, y] with
             | Cell.Walkable -> this.Pixel_bg
             | Cell.Wall -> this.Pixel_wall
-     

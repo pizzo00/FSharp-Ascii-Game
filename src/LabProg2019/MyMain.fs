@@ -38,21 +38,24 @@ let main () =
         let maze_relative_next_x = next_x - maze_origin_x
         let maze_relative_next_y = next_y - maze_origin_y
 
-        if(st.current_maze.Cells.[maze_relative_next_x, maze_relative_next_y] = Walkable) then
+        if key.KeyChar = 'r' then
+            let a = Solver.solver st.current_maze
+            for (x, y) in a do
+                ignore <| engine.create_and_register_sprite (image.single_char (pixel.create('\254', Color.Black, Color.Black)), maze_origin_x + x, maze_origin_y + y, 1)
+            
+
+        if st.current_maze.Cells.[maze_relative_next_x, maze_relative_next_y] = Walkable then
             st.player.move_by (dx, dy)
             st.player.pixels.[0].bg <- (st.current_maze.get_pixel_in_pos maze_relative_next_x maze_relative_next_y).fg //Update bg color of player
 
-        if(st.current_maze.is_end_pos maze_relative_next_x maze_relative_next_y) then
+        if st.current_maze.is_end_pos (maze_relative_next_x, maze_relative_next_y) then
             st.player.pixels.[0].fg <- Color.White
 
         let close = key.KeyChar = 'q' 
         (st, close)
 
 
-    // create simple backgroud and player
-    let m = maze(maze_w, maze_h)
-    //Backtracking.backtracking m
-    Eller.eller m
+    let m = maze(maze_w, maze_h, Eller.eller)
     ignore <| engine.create_and_register_sprite (m.to_image(), maze_origin_x, maze_origin_y, 0)
     
     let player = engine.create_and_register_sprite (image.single_char (pixel.create('\254', Color.Blue, m.Pixel_start.fg)), maze_origin_x + m.Start_x, maze_origin_y + m.Start_y, 1)
