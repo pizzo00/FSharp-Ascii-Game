@@ -6,24 +6,23 @@ open Gfx
 open Maze
 open Menu
 
-//Main Config
-let maze_w = 61//61
-let maze_h = 31//31
+//Maze Config
+let maze_w = 61
+let maze_h = 31
 let maze_origin_x = 4
 let maze_origin_y = 7
 
+//Title Config
+let title_x = 4
+let title_y = 0
 let title = ["""       _ _   _                 _                              """;
              """ /\ /\| | |_(_)_ __ ___   __ _| |_ ___    /\/\   __ _ _______ """;
              """/ / \ \ | __| | '_ ` _ \ / _` | __/ _ \  /    \ / _` |_  / _ \""";
              """\ \_/ / | |_| | | | | | | (_| | ||  __/ / /\/\ \ (_| |/ /  __/""";
              """ \___/|_|\__|_|_| |_| |_|\__,_|\__\___| \/    \/\__,_/___\___|"""]
-let title_x = 4
-let title_y = 0
 
-//Engine
-let W = 70
-let H = 40
-let engine = new engine (W, H)
+//Engine Config
+
     
 
 [< NoEquality; NoComparison >]
@@ -36,6 +35,9 @@ type game_state = {
     current_maze: maze
 }
 
+/// <summary>Display a menu</summary>
+/// <param name="menu">The menu to be displaied</param>
+/// <param name="exit_only_in">The exit choice</param>
 let menu_display (menu: menu, exit_only_in: Option<int>): menu =
     let start_menu_update(key : ConsoleKeyInfo) (screen : wronly_raster) (st : start_menu_state) =
         let mutable close = false
@@ -56,7 +58,10 @@ let menu_display (menu: menu, exit_only_in: Option<int>): menu =
     st.menu.clear()
     st.menu
 
-let game(algorithm_selector: int, player_selector: int) =
+/// <summary>Display the maze</summary>
+/// <param name="algorithm_selector">Algorith to use</param>
+/// <param name="player_selector">Player selector</param>
+let play(algorithm_selector: int, player_selector: int) =
     let game_update (key : ConsoleKeyInfo) (screen : wronly_raster) (st : game_state) =
         // Move player
         let dx, dy =
@@ -110,25 +115,31 @@ let game(algorithm_selector: int, player_selector: int) =
     engine.loop_on_key game_update game_state
     ()
 
+/// <summary>Display play settings</summary>
+let play_settings () =
+    let game_choice_menu_opt1 = new menu_item(["Backtrack"; "Eller"], 6, 8)
+    let game_choice_menu_opt2 = new menu_item(["Utente"; "PC"], 6, 10)
+    let game_choice_menu_opt3 = new menu_item("Inizia", 6, 12)
+    let game_choice_menu = new menu([game_choice_menu_opt1; game_choice_menu_opt2; game_choice_menu_opt3])
+    let game_choice_menu = menu_display(game_choice_menu, Some(2))
+    let opt_1 = snd(game_choice_menu.Items.[0]).Selected
+    let opt_2 = snd(game_choice_menu.Items.[1]).Selected
+    play(opt_1, opt_2)
 
+/// <summary>Display the start menu</summary>
+let start_menu () =
+    let start_menu_opt1 = new menu_item("Inizia Gioco", 6, 8)
+    let start_menu_opt2 = new menu_item("Esci", 6, 10)
+    let start_menu = new menu([start_menu_opt1; start_menu_opt2])
+    let start_menu_index = menu_display(start_menu, None).Selected
+    match start_menu_index with 
+    | 0 -> play_settings()        
+    | _ -> ()
+
+/// <summary>Display title and start hte program</summary>
 let main () =
     engine.show_fps <- false;
     let spr = new text(title, Color.White)
     engine.create_and_register_sprite(spr.to_image(), title_x, title_y, 1) |> ignore
     
-    let start_menu_opt1 = new menu_item(engine, "Inizia Gioco", 6, 8)
-    let start_menu_opt2 = new menu_item(engine, "Esci", 6, 10)
-    let start_menu = new menu(engine, [start_menu_opt1; start_menu_opt2])
-    let start_menu_index = menu_display(start_menu, None).Selected
-    match start_menu_index with
-    | 0 -> 
-        let game_choice_menu_opt1 = new menu_item(engine, ["Backtrack"; "Eller"], 6, 8)
-        let game_choice_menu_opt2 = new menu_item(engine, ["Utente"; "PC"], 6, 10)
-        let game_choice_menu_opt3 = new menu_item(engine, "Inizia", 6, 12)
-        let game_choice_menu = new menu(engine, [game_choice_menu_opt1; game_choice_menu_opt2; game_choice_menu_opt3])
-        let game_choice_menu = menu_display(game_choice_menu, Some(2))
-        let opt_1 = snd(game_choice_menu.Items.[0]).Selected
-        let opt_2 = snd(game_choice_menu.Items.[1]).Selected
-        game(opt_1, opt_2)
-        
-    | _ -> ()
+    start_menu()

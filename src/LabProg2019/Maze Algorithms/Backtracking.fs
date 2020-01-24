@@ -8,6 +8,8 @@ open System.Linq
 let backtracking (m: maze) = 
     let mutable cells = Array2D.create m.Width m.Height Unvisited 
 
+    
+    /// <summary>If present returns a new random direction from a given cell</summary>
     let get_random_new_pos (m: maze) (cells: AlgorithmCell[,]) (pos: int*int): (int*int) option =
         let mutable possible_choices = []
         let (x, y) = pos

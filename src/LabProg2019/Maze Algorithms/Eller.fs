@@ -9,6 +9,7 @@ open System.Linq
 let eller (m: maze) = 
     let mutable cells_sets: (int*int) list list = []
 
+    /// <summary>Determines if a set contains at least one cell with given y</summary>
     let rec set_contains_cell_with_y (set: (int*int) list) (y: int): bool = 
         match set with
         | [] -> false
@@ -16,9 +17,11 @@ let eller (m: maze) =
             let (ix, iy) = i
             (y = iy) || (set_contains_cell_with_y is y)
 
+    /// <summary>Get all cells sets that contains at least one cell with given y</summary>
     let get_all_set_that_contains_cell_with_y (y: int): (int*int) list list =
         List.where (fun s -> set_contains_cell_with_y s y) cells_sets
 
+    /// <summary>Get the cells set of a given set</summary>
     let get_set_of_cell (cell: int*int): (int*int) list =
         let res = (List.where (fun s -> List.contains cell s) cells_sets)
         if res.Count() = 0 then
@@ -26,14 +29,17 @@ let eller (m: maze) =
         else
             res.Head
 
+    /// <summary>Determines if two cells are in the same set</summary>
     let is_in_the_same_set (cell1: int*int) (cell2: int*int): bool =
         List.contains cell2 (get_set_of_cell cell1)
 
+    /// <summary>Joins two sets and add the new set to cells_set collection</summary>
     let join_two_sets_and_append (set1: (int*int) list) (set2: (int*int) list): unit =
         let newSet = set1 @ set2
         cells_sets <- (List.where (fun x -> x <> set1 && x <> set2) cells_sets)//Remove the two set
         cells_sets <- newSet::cells_sets //add the joined set
 
+    /// <summary>Joins two cells and their set</summary>
     let join_two_cells (cell1: int*int) (cell2: int*int): bool =
         let choice = (not (is_in_the_same_set cell1 cell2))
         if choice then //if not in the same set randomly join
@@ -41,12 +47,14 @@ let eller (m: maze) =
             set_walkable_between_pos m cell1 cell2 // Break the wall in between 
         choice
 
+    /// <summary>Joins two cells or not (50%)</summary>
     let randomly_join_two_cells (cell1: int*int) (cell2: int*int): bool =
         if get_rand_boolean () then //if not in the same set randomly join
             join_two_cells cell1 cell2 
         else
             false
 
+    /// <summary>Create new sets for cells not in sets</summary>
     let add_cell_on_new_row_to_set (y: int): unit =
         let rec aux (x: int): unit =
             if x >= m.Width then //Stop one cell because I join with the next cell 
@@ -58,6 +66,7 @@ let eller (m: maze) =
         if (y >= m.Height) then failwith "Index out of bound"
         aux 1
 
+    /// <summary>Randomly horizntal join sets</summary>
     let create_random_connection_horizontal (y: int): unit =
         let rec aux (x: int): unit =
             if x >= m.Width - 2 then //Stop one cell before because I join with the next cell 
@@ -71,6 +80,7 @@ let eller (m: maze) =
         if (y >= m.Height) then failwith "Index out of bound"
         else aux 1
         
+    /// <summary>Randomly vertical join sets</summary>
     let create_random_connection_vertical (y: int): unit =
         let create_random_connection_on_one_set (set: (int*int) list): unit =
             let cells_on_row = List.where (fun (x0, y0) -> y0 = y) set

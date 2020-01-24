@@ -143,10 +143,9 @@ type engine (w : int, h : int, ?fps_cap : int, ?flip_queue) =
         while data.apply (fun r -> not r.quit) do Thread.Sleep 500
         timer.Elapsed.RemoveHandler handler
         Log.msg "exiting engine loop."
-        
 
 
-
-        
-
-
+//My Engine
+let W = 70
+let H = 40
+let public engine = new engine (W, H)
