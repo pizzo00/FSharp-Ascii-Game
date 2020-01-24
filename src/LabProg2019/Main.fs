@@ -71,8 +71,6 @@ let main argv =
         main_log_server ()
     else
         let code = main_game ()
-        printfn "\nPress any key to quit..."
-        Console.ReadKey () |> ignore
         code
     #endif
 

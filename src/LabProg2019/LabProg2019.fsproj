@@ -68,8 +68,9 @@
     <Compile Include="External.fs" />
     <Compile Include="Globals.fs" />
     <Compile Include="Gfx.fs" />
-    <Compile Include="Maze.fs" />
     <Compile Include="Engine.fs" />
+    <Compile Include="Maze.fs" />
+    <Compile Include="Menu.fs" />
     <Compile Include="Test.fs" />
     <Compile Include="Maze Algorithms\Utility.fs" />
     <Compile Include="Maze Algorithms\Backtracking.fs" />

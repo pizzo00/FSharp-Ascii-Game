@@ -12,7 +12,6 @@ open Gfx
 
 type Cell = Wall | Walkable
 
-
 type maze =
     val Width: int
     val Height: int

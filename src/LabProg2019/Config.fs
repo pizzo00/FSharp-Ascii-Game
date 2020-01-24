@@ -18,10 +18,12 @@ let default_fps_cap = 30
 let log_pipe_name = "LogPipe"
 let log_pipe_translate_eol = '\255'
 
-let game_console_title = "Game Window"
+let game_console_title = "Ultimate Maze"
 let log_console_title = "Log Window"
 
 let log_msg_color = Color.Gray
 let log_warn_color = Color.Yellow
 let log_error_color = Color.Red
 let log_debug_color = Color.Cyan
+
+
