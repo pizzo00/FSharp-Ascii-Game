@@ -11,7 +11,6 @@ open System.Diagnostics
 open Globals
 open System.IO.Pipes
 open System.IO
-open MyMain
 
 
 // game mode (client)
