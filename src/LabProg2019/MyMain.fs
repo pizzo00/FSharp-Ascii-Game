@@ -1,4 +1,4 @@
-﻿module LabProg2019.MyMain
+module LabProg2019.MyMain
 
 open System
 open System.Timers
@@ -23,11 +23,15 @@ let title = ["""       _ _   _                 _                              ""
              """\ \_/ / | |_| | | | | | | (_| | ||  __/ / /\/\ \ (_| |/ /  __/""";
              """ \___/|_|\__|_|_| |_| |_|\__,_|\__\___| \/    \/\__,_/___\___|"""]
     
-//Score Config
-let mutable score = 10
+//Score Config - play
+let mutable score = 999
 let lose_a_point_every: float = 1000.0
 let score_x = 6
 let score_y = 7
+
+//Score Add Config
+let score_insert_name_x = 6
+let score_insert_name_y = 7
 
 [< NoEquality; NoComparison >]
 type start_menu_state = {
@@ -43,6 +47,12 @@ type game_state_autoplay = {
     player: sprite
     current_maze: maze
     mutable solution: (int*int) list
+}
+[< NoEquality; NoComparison >]
+type score_insert_state = {
+    mutable name: string
+    mutable spr_str: sprite list
+    mutable line: sprite
 }
 
 /// <summary>Display a menu</summary>
@@ -71,24 +81,66 @@ let menu_display (menu: menu, exit_only_in: Option<int>): menu =
 /// <summary>Prints the score list</summary>
 let score_show() =
     let update(key : ConsoleKeyInfo) (screen : wronly_raster) (st) =
-        (st, true)
+        (st, (key.Key = ConsoleKey.Q))
 
     let rec aux (l: score list) (max: int): string list =
         if max = 0 then []
         else 
             match l with
             | [] -> []
-            | x::xs -> (x.Name + " " + x.Points.ToString())::""::aux xs (max-1)//Leave also a void line
+            | x::xs -> (x.Name + "   " + x.Points.ToString())::""::aux xs (max-1)//Leave also a void line
     
     let l = get_all_score()
-    let s = aux l 20
-    let t = new text(s, Color.Red)
-    engine.create_and_register_sprite(t.to_image(), 12, 6, 1) |> ignore
+    let s = ("NAME SCORE")::(" ")::aux l 20
+    let t = new text(s, Color.White)
+    engine.create_and_register_sprite(t.to_image(), 12, 6, 4) |> ignore
+    let t2 = new text("Press Q to quit...", Color.White)
+    engine.create_and_register_sprite(t2.to_image(), 70 - t.Width - 10, 40 - 3, 4) |> ignore
     engine.loop_on_key update 0
             
     
 /// <summary>Permit to seva a score</summary>
-let score_add() = ()
+let score_add(score: int) =
+    let update(key : ConsoleKeyInfo) (screen : wronly_raster) (st: score_insert_state) =
+        if (key.KeyChar >= 'a' && key.KeyChar >= 'z') || (key.KeyChar >= 'A' && key.KeyChar >= 'Z') then
+            let c = Char.ToUpper(key.KeyChar)
+            st.name <- st.name + c.ToString()
+            let (x, y) =
+                match st.name.Length with
+                | 1 ->  (score_insert_name_x, score_insert_name_y)
+                | 2 ->  (score_insert_name_x + 1, score_insert_name_y)
+                | 3 ->  (score_insert_name_x + 2, score_insert_name_y)
+                | _ -> failwith "Lenght not supported"
+
+            st.spr_str <- engine.create_and_register_sprite(image.single_char(pixel.create(c, Color.White)), x, y, 4)::st.spr_str
+
+            if (st.name.Length < 3) then
+                st.line.move_by(1, 0)                
+                (st, false)
+            else
+                for i in 0..st.spr_str.Length-1 do
+                    st.spr_str.[i].clear
+                st.line.clear
+                (st, true)
+                
+        else
+            (st, false)
+
+    let st = { 
+        name = ""
+        spr_str = []
+        line = engine.create_and_register_sprite(image.single_char(pixel.create('_', Color.White)), score_insert_name_x, score_insert_name_y, 4)
+    }
+    
+    let desc_txt = new text("NAME SCORE", Color.White)
+    let score_txt = new text(score.ToString(), Color.White)
+    let desc_spr = engine.create_and_register_sprite(desc_txt.to_image(), score_insert_name_x, score_insert_name_y-1, 4)
+    let score_spr = engine.create_and_register_sprite(score_txt.to_image(), score_insert_name_x+6, score_insert_name_y, 4)
+    engine.loop_on_key update st
+    insert_score(new score(st.name, score))
+    desc_spr.clear
+    score_spr.clear
+    ()
 
 /// <summary>Display the maze</summary>
 /// <param name="algorithm_selector">Algorith to use</param>
@@ -157,8 +209,6 @@ let play(algorithm_selector: int, player_selector: int) =
             else
                 score_spr.clear
                 score_spr <- engine.create_and_register_sprite((new text("Punteggio: " + score.ToString(), Color.White)).to_image(), score_x, score_y, 1)
-
-        
         
         timer.Interval <- lose_a_point_every
         timer.Elapsed.Add(timer_action)
@@ -181,6 +231,9 @@ let play(algorithm_selector: int, player_selector: int) =
         engine.loop_on_key game_update_autoplay game_state
     maze_spr.clear
     player.clear
+
+    if player_selector = 0 then
+        score_add(score)    
     score_show()
 
 /// <summary>Display play settings</summary>
