@@ -30,7 +30,7 @@ let score_x = 6
 let score_y = 7
 
 //Score Add Config
-let score_insert_name_x = 6
+let score_insert_name_x = 31
 let score_insert_name_y = 7
 
 [< NoEquality; NoComparison >]
@@ -47,12 +47,13 @@ type game_state_autoplay = {
     player: sprite
     current_maze: maze
     mutable solution: (int*int) list
+    mutable solution_spr: sprite list
 }
 [< NoEquality; NoComparison >]
 type score_insert_state = {
     mutable name: string
     mutable spr_str: sprite list
-    mutable line: sprite
+    mutable line_spr: sprite
 }
 
 /// <summary>Display a menu</summary>
@@ -91,11 +92,11 @@ let score_show() =
             | x::xs -> (x.Name + "   " + x.Points.ToString())::""::aux xs (max-1)//Leave also a void line
     
     let l = get_all_score()
-    let s = ("NAME SCORE")::(" ")::aux l 20
+    let s = ("NAME SCORE")::(" ")::aux l 15
     let t = new text(s, Color.White)
-    engine.create_and_register_sprite(t.to_image(), 12, 6, 4) |> ignore
-    let t2 = new text("Press Q to quit...", Color.White)
-    engine.create_and_register_sprite(t2.to_image(), 70 - t.Width - 10, 40 - 3, 4) |> ignore
+    engine.create_and_register_sprite(t.to_image(), 28, 6, 4) |> ignore
+    let t2 = new text("Premere Q per uscire...", Color.White)
+    engine.create_and_register_sprite(t2.to_image(), 2, 38, 4) |> ignore
     engine.loop_on_key update 0
             
     
@@ -115,12 +116,12 @@ let score_add(score: int) =
             st.spr_str <- engine.create_and_register_sprite(image.single_char(pixel.create(c, Color.White)), x, y, 4)::st.spr_str
 
             if (st.name.Length < 3) then
-                st.line.move_by(1, 0)                
+                st.line_spr.move_by(1, 0)                
                 (st, false)
             else
                 for i in 0..st.spr_str.Length-1 do
                     st.spr_str.[i].clear
-                st.line.clear
+                st.line_spr.clear
                 (st, true)
                 
         else
@@ -129,7 +130,7 @@ let score_add(score: int) =
     let st = { 
         name = ""
         spr_str = []
-        line = engine.create_and_register_sprite(image.single_char(pixel.create('_', Color.White)), score_insert_name_x, score_insert_name_y, 4)
+        line_spr = engine.create_and_register_sprite(image.single_char(pixel.create('_', Color.White)), score_insert_name_x, score_insert_name_y, 4)
     }
     
     let desc_txt = new text("NAME SCORE", Color.White)
@@ -182,7 +183,7 @@ let play(algorithm_selector: int, player_selector: int) =
             st.player.x <- abs_x
             st.player.y <- abs_y            
             st.player.pixels.[0].bg <- (st.current_maze.get_pixel_in_pos maze_relative_next_x maze_relative_next_y).fg //Update bg color of player
-            engine.create_and_register_sprite (image.single_char (pixel.create('\254', Color.Black, Color.Black)), abs_x, abs_y, 1) |> ignore
+            st.solution_spr <- engine.create_and_register_sprite (image.single_char (pixel.create('\254', Color.Red, Color.Red)), abs_x, abs_y, 1)::st.solution_spr
             st.solution <- ps
             (st, false)
 
@@ -227,8 +228,11 @@ let play(algorithm_selector: int, player_selector: int) =
             player = player
             current_maze = m
             solution = (Solver.solver m).Tail //Remove the first element (the start)
+            solution_spr = []
             }
         engine.loop_on_key game_update_autoplay game_state
+        for i in 0..game_state.solution_spr.Length-1 do
+            game_state.solution_spr.[i].clear
     maze_spr.clear
     player.clear
 
